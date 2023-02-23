@@ -1,0 +1,572 @@
+RAGHVENDRA SINGH SHAKTAWAT
+
+GERMAN CREDIT DATASET
+
+
+```{r}
+library(tidyverse)
+library(tidyr)
+library(stringr)
+library(klaR)
+library(e1071)
+library(dlookr)
+library(htmlwidgets)
+library(psych)
+library(rpart)
+library(rstatix)
+library(gmodels)
+library(ISLR)
+library(Metrics)
+library(janitor)
+library(knitr)
+library(magrittr)
+```
+
+```{r}
+setwd("C:/Users/raghv/Downloads")
+german_df <- read.csv("german_credit_data_dataset.csv", stringsAsFactors = FALSE)
+head(german_df)
+dim(german_df)
+```
+
+First of all, I loaded the two data sets and name the two data frames however the first data frame i.e., german_df is going to be used below.
+
+```{r}
+setwd("C:/Users/raghv/Downloads")
+attributes_df <- read.csv("attributes_german_credit_data.csv", stringsAsFactors = FALSE)
+head(attributes_df)
+dim(attributes_df)
+```
+
+I explored the structure of the data set where it is evident that the columns are either characters, integers or numeric.
+
+```{r}
+str(german_df)
+```
+
+When looking at the structure of this data set, there are 1000 rows and 21 columns with the values that are present mainly in the character, integer, and numeric form.
+
+```{r}
+str(attributes_df)
+```
+
+```{r}
+glimpse(german_df)
+```
+
+Below and above are the glimpses of the two data sets.
+
+```{r}
+glimpse(attributes_df)
+```
+
+There are 21 rows and 3 columns.
+
+In order to check the NA values present in the data set, I am using the colSums function to check for them below.
+
+```{r}
+colSums(is.na(german_df))
+```
+
+```{r}
+summary(attributes_df)
+```
+
+The summaries of the two data sets german_df and attribute_df is presented above and below, respectively.
+
+```{r}
+summary(german_df)
+```
+
+Summary tells about the different values that are present in the data set and some outliers can also be detected through the summary of the data set.
+
+Now, I will encode the categorical variables using one-hot encoding. 
+
+In order to do the hot encoding, I took those columns in which the values are present in in the form of an alphabet followed by number.
+
+```{r}
+german_df %>% count(credit_history)
+```
+
+First of all, I did the counting of the different rows that is present in the credit history column using the count function and I did the same for the upcoming columns as well.
+
+```{r}
+table(german_df[german_df$customer_type == "1", "credit_history"])
+```
+
+```{r}
+table(german_df[german_df$customer_type == "2", "credit_history"])
+```
+
+Here, I assigned the value of 1 and 2 to the credit history column and used dummy coding with if else function to make the data set more approachable to deal with in the coming steps.
+
+```{r}
+german_df$credit_history_3031 <- ifelse(german_df$credit_history == "A30", 1, ifelse(german_df$credit_history == "A31", 1, 0))
+```
+
+```{r}
+table(german_df$credit_history_3031)
+```
+
+```{r}
+german_df$credit_history_3233 <- ifelse(german_df$credit_history == "A32", 1, ifelse(german_df$credit_history == "A33", 1, 0))
+```
+
+Here, I did the dummy coding for A32 and A33 together and performed it separately for A34.
+
+```{r}
+table(german_df$credit_history_3233)
+```
+
+```{r}
+german_df$credit_history_34 <- ifelse(german_df$credit_history == "A34", 1, 0)
+```
+
+```{r}
+table(german_df$credit_history_34)
+```
+
+
+```{r}
+german_df %>% count(checking_account_status)
+```
+
+For the checking_account_status column, I followed the same steps that I followed for the credit history column and for the upcoming steps of other columns, the same approach is going to be followed. 
+
+```{r}
+table(german_df[german_df$customer_type == "1", "checking_account_status"])
+table(german_df[german_df$customer_type == "2", "checking_account_status"])
+```
+
+```{r}
+german_df$checking_account_status_1112 <- ifelse(german_df$checking_account_status == "A11", 1, ifelse(german_df$checking_account_status == "A12", 1, 0))
+```
+
+```{r}
+table(german_df$checking_account_status_1112)
+```
+
+```{r}
+german_df$checking_account_status_1314 <- ifelse(german_df$checking_account_status == "A13", 1, ifelse(german_df$checking_account_status == "A14", 1, 0))
+```
+
+```{r}
+table(german_df$checking_account_status_1314)
+```
+
+```{r}
+german_df %>% count(savings)
+```
+
+```{r}
+german_df$savings_6162 <- ifelse(german_df$savings == "A61", 1, ifelse(german_df$checking_account_status == "A62", 1, 0))
+```
+
+```{r}
+table(german_df$savings_6162)
+```
+
+```{r}
+german_df$savings_6364 <- ifelse(german_df$savings == "A63", 1, ifelse(german_df$savings == "A64", 1, 0))
+```
+
+```{r}
+table(german_df$savings_6364)
+```
+
+```{r}
+german_df$savings_65 <- ifelse(german_df$savings == "A65", 1 , 0)
+```
+
+```{r}
+table(german_df$savings_65)
+```
+
+```{r}
+german_df %>% count(present_employment)
+```
+
+```{r}
+table(german_df[german_df$customer_type == "1", "present_employment"])
+table(german_df[german_df$customer_type == "2", "present_employment"])
+```
+
+```{r}
+german_df$present_employment_7172 <- ifelse(german_df$present_employment == "A71", 1, ifelse(german_df$present_employment == "A72", 1, 0))
+```
+
+```{r}
+table(german_df$present_employment_7172)
+```
+
+```{r}
+german_df$present_employment_7374 <- ifelse(german_df$present_employment == "A73", 1, ifelse(german_df$present_employment == "A74", 1, 0))
+```
+
+```{r}
+table(german_df$present_employment_7374)
+```
+
+```{r}
+german_df$present_employment_75 <- ifelse(german_df$present_employment == "A75", 1 , 0)
+```
+
+```{r}
+table(german_df$present_employment_75)
+```
+
+```{r}
+german_df %>% count(personal)
+```
+
+```{r}
+table(german_df[german_df$customer_type == "1", "personal"])
+table(german_df[german_df$customer_type == "2", "personal"])
+```
+
+```{r}
+german_df$personal_9192 <- ifelse(german_df$personal == "A91", 1, ifelse(german_df$personal == "A92", 1, 0))
+```
+
+```{r}
+table(german_df$personal_9192)
+```
+
+```{r}
+german_df$personal_9394 <- ifelse(german_df$personal == "A93", 1, ifelse(german_df$present_employment == "A94", 1, 0))
+```
+
+```{r}
+table(german_df$personal_9394)
+```
+
+```{r}
+german_df %>% count(other_debtors)
+```
+
+```{r}
+table(german_df[german_df$customer_type == "1", "other_debtors"])
+table(german_df[german_df$customer_type == "2", "other_debtors"])
+```
+
+```{r}
+german_df$other_debtors_101 <- ifelse(german_df$other_debtors == "A101", 1 , 0)
+```
+
+```{r}
+german_df$other_debtors_102 <- ifelse(german_df$other_debtors == "A102", 1 , 0)
+```
+
+```{r}
+german_df$other_debtors_103 <- ifelse(german_df$other_debtors == "A103", 1 , 0)
+```
+
+Since there are three columns present here, I did the dummy coding for those three separately without using the two values together as I did in the previous steps for previous columns.
+
+```{r}
+table(german_df$other_debtors_101)
+table(german_df$other_debtors_102)
+table(german_df$other_debtors_103)
+```
+
+```{r}
+german_df %>% count(property)
+```
+
+```{r}
+table(german_df[german_df$customer_type == "1", "property"])
+table(german_df[german_df$customer_type == "2", "property"])
+```
+
+```{r}
+german_df$property_121122 <- ifelse(german_df$property == "A121", 1, ifelse(german_df$property == "A122", 1, 0))
+```
+
+```{r}
+table(german_df$property_121122)
+```
+
+```{r}
+german_df$property_123124 <- ifelse(german_df$property == "A123", 1, ifelse(german_df$property == "A124", 1, 0))
+```
+
+```{r}
+table(german_df$property_123124)
+```
+
+```{r}
+german_df %>% count(other_installment_plans)
+```
+
+```{r}
+table(german_df[german_df$customer_type == "1", "other_installment_plans"])
+table(german_df[german_df$customer_type == "2", "other_installment_plans"])
+```
+
+
+```{r}
+german_df$other_installment_plans_141 <- ifelse(german_df$other_installment_plans == "A141", 1 , 0)
+```
+
+```{r}
+german_df$other_installment_plans_142 <- ifelse(german_df$other_installment_plans == "A142", 1 , 0)
+```
+
+```{r}
+german_df$other_installment_plans_143 <- ifelse(german_df$other_installment_plans == "A143", 1 , 0)
+```
+
+```{r}
+table(german_df$other_installment_plans_141)
+table(german_df$other_installment_plans_142)
+table(german_df$other_installment_plans_143)
+```
+
+```{r}
+german_df %>% count(housing)
+```
+
+```{r}
+table(german_df[german_df$customer_type == "1", "housing"])
+table(german_df[german_df$customer_type == "2", "housing"])
+```
+
+
+```{r}
+german_df$housing_151 <- ifelse(german_df$housing == "A151", 1 , 0)
+```
+
+```{r}
+german_df$housing_152 <- ifelse(german_df$housing == "A152", 1 , 0)
+```
+
+```{r}
+german_df$housing_153 <- ifelse(german_df$housing == "A153", 1 , 0)
+```
+
+```{r}
+table(german_df$housing_151)
+table(german_df$housing_152)
+table(german_df$housing_153)
+```
+
+```{r}
+german_df %>% count(job)
+```
+
+```{r}
+table(german_df[german_df$customer_type == "1", "job"])
+table(german_df[german_df$customer_type == "2", "job"])
+```
+
+```{r}
+german_df$job_171172 <- ifelse(german_df$job == "A171", 1, ifelse(german_df$job == "A172", 1, 0))
+```
+
+```{r}
+table(german_df$job_171172)
+```
+
+```{r}
+german_df$job_173174 <- ifelse(german_df$job == "A173", 1, ifelse(german_df$job == "A174", 1, 0))
+```
+
+```{r}
+table(german_df$job_173174)
+```
+
+```{r}
+german_df %>% count(telephone)
+```
+
+```{r}
+table(german_df[german_df$customer_type == "1", "telephone"])
+table(german_df[german_df$customer_type == "2", "telephone"])
+```
+
+
+```{r}
+german_df$telephone_191 <- ifelse(german_df$telephone == "A191", 1 , 0)
+```
+
+```{r}
+german_df$telephone_192 <- ifelse(german_df$telephone == "A192", 1 , 0)
+```
+
+```{r}
+table(german_df$telephone_191)
+table(german_df$telephone_192)
+```
+
+```{r}
+german_df %>% count(foreign_worker)
+```
+
+```{r}
+table(german_df[german_df$customer_type == "1", "foreign_worker"])
+table(german_df[german_df$customer_type == "2", "foreign_worker"])
+```
+
+
+```{r}
+german_df$foreign_worker_201 <- ifelse(german_df$foreign_worker == "A201", 1 , 0)
+```
+
+```{r}
+german_df$foreign_worker_202<- ifelse(german_df$foreign_worker == "A202", 1 , 0)
+```
+
+```{r}
+table(german_df$foreign_worker_201)
+table(german_df$foreign_worker_202)
+```
+
+After performing the hot encoding for all the columns that are present above, I once again evaluated the the basic structure of the updated data frame as well as looked at the summary and glimpses of it. 
+
+```{r}
+head(german_df)
+dim(german_df)
+```
+
+```{r}
+str(german_df)
+```
+
+```{r}
+summary(german_df)
+```
+
+```{r}
+glimpse(german_df)
+```
+
+
+
+Now, I am building a classification model using a support vector machine that predicts if a customer is a good or bad credit risk (column customer_type).
+
+```{r}
+head(german_df)
+dim(german_df)
+```
+
+```{r}
+normalize <- function(x) {
+    return(round((x - min(x)) / (max(x) - min(x)), 1))
+}
+
+first <- german_df %>% select(c("duration","credit_amount","installment_rate","present_residence","age","existing_credits","dependents"),)
+
+german_df_normalized_data <- as.data.frame(lapply(first, normalize))
+```
+
+Here, I normalised the data first for those columns that have numerical values and are categorical in nature. There are 7 such columns. Their names are duration, credit_amount, installment_rate, present_residence, age, existing_credits, and dependents.
+
+```{r}
+german_df$customer_type <- factor(ifelse(german_df$customer_type == "1", "good_customer", "bad_customer"))
+#Selecting encoded columns
+second <- german_df %>% select(c(21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51),)
+```
+
+Then, I used the if else function to give a score for 1 as the good customer and if not one,  then it is a bad customer. I also selected all the newly created columns along with the customer type column and combined the two data frames that are normalised and encoded with each other.
+
+```{r}
+german_df_final <- data.frame(second, german_df_normalized_data)
+head(german_df_final)
+```
+
+```{r}
+set.seed(123)
+train.size <- 0.8
+train.index <- sample.int(nrow(german_df_final), round(nrow(german_df_final) * train.size))
+german_df_training <- german_df_final[train.index,]
+german_df_validation <- german_df_final[-train.index,]
+head(german_df_training)
+head(german_df_validation)
+dim(german_df_training)
+dim(german_df_validation)
+```
+
+After that, I split the data into to the training and validation set in the ratio of 80:20, respectively.
+
+Now, for using the support vector machine to predict whether the customer is a good or bad credit risk, I used the SVM formula and stated the levels of the customer as bad or good.
+
+```{r}
+svm_class <-  svm(formula = customer_type ~ ., data = german_df_training, type = "C-classification", kernel = "linear")
+summary(svm_class)
+```
+
+
+
+Now, I will build another classification model using a decision tree or neural network that also predicts if a bank customer is a good or bad credit risk. You may choose the package for the SVM implementation.
+
+```{r}
+#install.packages("tree")
+library(tree)
+
+classification_model_decision <-  tree(formula = customer_type ~ ., data = german_df_training)
+```
+
+```{r}
+summary(classification_model_decision)
+```
+
+Here, I built another classification model using a decision tree.
+First of all, I installed the package tree and upgraded its library and used it to display the residual mean deviance and misclassification error rate of the model which is 1.038 and .2325, respectively.
+
+```{r}
+plot(classification_model_decision)
+text(classification_model_decision, col = "blue")
+```
+
+Later, I plotted the classification decision model which can be displayed like this.
+
+I also calculated accuracy, precision, and recall for both models.
+
+```{r}
+svm_prediction <- predict(svm_class, newdata = german_df_validation)
+svm_prediction
+```
+
+Now, I predicted the support vector machine class using the validation data set for the good and bad customers and also performed decision tree prediction using the validation data set below.
+
+```{r}
+dt_prediction <- predict(classification_model_decision, german_df_validation, type = "class")
+dt_prediction
+```
+
+```{r}
+library(caret)
+dt_confusion <- confusionMatrix(dt_prediction, german_df_validation$customer_type)
+dt_confusion
+```
+
+Finally, with the help of caret package, I used the confusion matrix to show the accuracy of the model along with its sensitivity, specificity, positive and negative predictive values, etc.
+
+```{r}
+svm_confusion <- confusionMatrix(svm_prediction, german_df_validation$customer_type)
+svm_confusion
+```
+
+```{r}
+svm_accuracy <- svm_confusion$overall
+svm_accuracy
+```
+
+```{r}
+svm_accuracy["Accuracy"]
+```
+
+```{r}
+dt_accuracy <- dt_confusion$overall
+dt_accuracy
+```
+
+```{r}
+dt_accuracy["Accuracy"]
+```
+
+Above is the accuracy for the support vector machine and decision tree model which is .725 and  735, respectively.
+
+
+
+THANK YOU
